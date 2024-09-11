@@ -18,6 +18,7 @@ export const useEmployeeStore = defineStore('employee', {
                 first_name: '',
                 last_name: '',
                 department_id: '',
+                active: '',
             },
             errors: null,
         };
@@ -85,6 +86,17 @@ export const useEmployeeStore = defineStore('employee', {
                     department_id: '',
                 };
 
+                this.errors = null;
+                this.fetchEmployees()
+
+            } catch (error) {
+                this.errors = error.response?.data ?? null;
+                console.log(error.response?.data);
+            }
+        },
+        async UpdateActiveEmployee(employee) {
+            try {
+                await axios.put(route('update.active.employee', { employee: employee.id }), {active: employee.active =  !employee.active  });
                 this.errors = null;
                 this.fetchEmployees()
 

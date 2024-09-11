@@ -4,7 +4,7 @@ import { useEmployeeStore } from '@/stores/employee';
 import { storeToRefs } from "pinia";
 
 const employeeStore = useEmployeeStore();
-const { fetchEmployees, openModalAndSetDataForUpdateEmployee } = employeeStore
+const { fetchEmployees, openModalAndSetDataForUpdateEmployee, UpdateActiveEmployee } = employeeStore
 const { employeesData } = storeToRefs(employeeStore)
 
 onMounted(async () => {
@@ -51,7 +51,7 @@ onMounted(async () => {
                         </svg>
                         Update
                     </button>
-                    <button class="flex items-center px-4 py-2 text-white bg-gray-500 hover:bg-gray-600 rounded gap-2">
+                    <button @click="UpdateActiveEmployee(employee)" :class="{'flex items-center px-4 py-2 text-white bg-gray-500 hover:bg-gray-600 rounded gap-2': !employee.active, 'flex items-center px-4 py-2 text-white bg-green-500 hover:bg-green-600 rounded gap-2': employee.active  }">
                         <svg fill="currentColor" height="20px" width="20px" version="1.1" id="Layer_1"
                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                             viewBox="0 0 472.615 472.615" xml:space="preserve">
@@ -78,7 +78,7 @@ onMounted(async () => {
                                 </g>
                             </g>
                         </svg>
-                        Disable
+                        {{ employee.active ?  'Disable' : 'Enable'}}
                     </button>
                     <button
                         class="flex items-center px-4 py-2 text-white bg-yellow-500 hover:bg-yellow-600 rounded gap-2">

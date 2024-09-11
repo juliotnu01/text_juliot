@@ -19,6 +19,7 @@ class EmployeeResource extends JsonResource
             'employee_id' => $this->employee_id,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
+            'active' => $this->active,
             'department' => new DepartmentResource($this->whenLoaded('department')),
         ];
     }

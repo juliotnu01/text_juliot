@@ -14,3 +14,4 @@ Route::get('/get-employees', [EmployeeController::class, 'index'])->name('get.ro
 Route::get('/get-departments', [DepartmentController::class, 'index'])->name('get.department');
 Route::post('/store-employee', [EmployeeController::class, 'store'])->name('store.employee.room');
 Route::put('/update-employee/{employee}', [EmployeeController::class, 'update'])->name('update.employee');
+Route::put('/update-active-employee/{employee}', [EmployeeController::class, 'updateActiveEmployee'])->name('update.active.employee');

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\{EmployeeRequest, EmployeeUpdateRequest};
+use App\Http\Requests\{EmployeeRequest, EmployeeUpdateRequest, EmployeeUpdateActiveEmployeeRequest };
 use App\Http\Resources\EmployeeResource;
 use App\Models\Employee;
 
@@ -70,6 +70,21 @@ class EmployeeController extends Controller
         try {
             $validatedData = $request->validated();
             $employee->update($validatedData);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function updateActiveEmployee(EmployeeUpdateActiveEmployeeRequest $request, Employee $employee)
+    {
+        try {
+            $validatedData = $request->validated();
+            $employee->update([
+                "active" => $validatedData['active']
+            ]);
         } catch (\Throwable $th) {
             throw $th;
         }
