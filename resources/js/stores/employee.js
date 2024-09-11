@@ -4,7 +4,8 @@ export const useEmployeeStore = defineStore('employee', {
     state: () => {
         return {
             employees: [],
-            openModalAddEmployee: true,
+            openModalAddEmployee: false,
+            openModalUpdateEmployee: false,
             filters: {
                 employee_id: '',
                 department: '',
@@ -12,6 +13,7 @@ export const useEmployeeStore = defineStore('employee', {
                 end_date: ''
             },
             employee: {
+                id: '',
                 employee_id: '',
                 first_name: '',
                 last_name: '',
@@ -56,6 +58,7 @@ export const useEmployeeStore = defineStore('employee', {
         },
         async StoreEmployee() {
             try {
+
                 await axios.post(route('store.employee.room'), this.employee);
                 this.openModalAddEmployee = false;
                 this.employee = {
@@ -71,6 +74,25 @@ export const useEmployeeStore = defineStore('employee', {
                 console.log(error.response.data);
             }
         },
+        async UpdateEmployee() {
+            try {
+                await axios.put(route('update.employee', { employee: this.employee.id }), this.employee);
+                this.openModalUpdateEmployee = false;
+                this.employee = {
+                    employee_id: '',
+                    first_name: '',
+                    last_name: '',
+                    department_id: '',
+                };
+
+                this.errors = null;
+                this.fetchEmployees()
+
+            } catch (error) {
+                this.errors = error.response?.data ?? null;
+                console.log(error.response?.data);
+            }
+        },
         clearFilter() {
             this.filters = {
                 employee_id: '',
@@ -78,6 +100,19 @@ export const useEmployeeStore = defineStore('employee', {
                 init_date: '',
                 end_date: ''
             }
+        },
+        openModalAndSetDataForUpdateEmployee(data) {
+            this.employee = { ...this.employee, ...data };
+            this.openModalUpdateEmployee = true;
+        },
+        cancelUpdateEmployee() {
+            this.employee = {
+                employee_id: '',
+                first_name: '',
+                last_name: '',
+                department_id: '',
+            }
+            this.openModalUpdateEmployee = false;
         }
     }
 })

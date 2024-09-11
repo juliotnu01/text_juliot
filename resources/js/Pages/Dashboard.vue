@@ -17,10 +17,10 @@ const updateDateTime = () => {
 const employeeStore = useEmployeeStore();
 const departmentStore = useDepartmentStore();
 
-const { StoreEmployee, clearFilter } = employeeStore;
+const { StoreEmployee, clearFilter, cancelUpdateEmployee, UpdateEmployee } = employeeStore;
 const { fetchDepartments } = departmentStore;
 
-const { filters, openModalAddEmployee, employee, errors } = storeToRefs(employeeStore)
+const { filters, openModalAddEmployee, employee, errors, openModalUpdateEmployee } = storeToRefs(employeeStore)
 const { departments } = storeToRefs(departmentStore)
 
 
@@ -65,7 +65,8 @@ onMounted(() => {
                 <label for="input_search_name" class="mb-1 invisible">Placeholder</label>
                 <select v-model="filters.department" class="h-10 px-2 border rounded">
                     <option value="">Select Department</option>
-                    <option :value="department.name" v-for="(department, d) in departments" :key="d">{{ department.name }}
+                    <option :value="department.name" v-for="(department, d) in departments" :key="d">{{ department.name
+                        }}
                     </option>
                 </select>
             </div>
@@ -109,7 +110,6 @@ onMounted(() => {
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                     <TableDashboardVue />
                     <DialogModal :show="openModalAddEmployee" closeable>
-
                         <template #content>
                             <form>
                                 <div class="flex flex-col w-full my-4 ">
@@ -141,7 +141,8 @@ onMounted(() => {
                                             {{ department.name }}
                                         </option>
                                     </select>
-                                    <small v-if="errors && errors.errors.department_id" class="text-red-700">{{ errors.errors.department_id }}</small>
+                                    <small v-if="errors && errors.errors.department_id" class="text-red-700">{{
+                                        errors.errors.department_id }}</small>
                                 </div>
                             </form>
                         </template>
@@ -152,6 +153,59 @@ onMounted(() => {
                                     Save
                                 </button>
                                 <button @click="openModalAddEmployee = !openModalAddEmployee"
+                                    class="flex items-center px-4 py-2 text-white bg-red-500 hover:bg-red-600 rounded gap-2">
+                                    Cancel
+                                </button>
+                            </div>
+                        </template>
+                    </DialogModal>
+                    <DialogModal :show="openModalUpdateEmployee" closeable>
+                        <template #title>
+                            <div class="text-[16px]"> Update employee</div>
+                        </template>
+                        <template #content>
+                            <form>
+                                <div class="flex flex-col w-full my-4 ">
+                                    <label for="employee_id" class="mb-1 ">Employee ID </label>
+                                    <input v-model="employee.employee_id" type="text" class="h-10 px-2 border rounded"
+                                        placeholder="Enter employee ID" id="employee_id">
+                                    <small v-if="errors && errors.errors.employee_id" class="text-red-700">{{
+                                        errors.errors.employee_id }}</small>
+                                </div>
+                                <div class="flex flex-col w-full my-4 ">
+                                    <label for="firtname" class="mb-1 ">Firstname</label>
+                                    <input v-model="employee.first_name" type="text" class="h-10 px-2 border rounded"
+                                        placeholder="Enter firstname" id="firtname">
+                                    <small v-if="errors && errors.errors.first_name" class="text-red-700">{{
+                                        errors.errors.first_name }}</small>
+                                </div>
+                                <div class="flex flex-col w-full my-4 ">
+                                    <label for="lastname" class="mb-1 ">LastName</label>
+                                    <input v-model="employee.last_name" type="text" class="h-10 px-2 border rounded"
+                                        placeholder="Enter lastname" id="lastname">
+                                    <small v-if="errors && errors.errors.last_name" class="text-red-700">{{
+                                        errors.errors.last_name }}</small>
+                                </div>
+                                <div class="flex flex-col w-full my-4 ">
+                                    <label for="lastname" class="mb-1 ">LastName</label>
+                                    <select v-model="employee.department_id" class="h-10 px-2 border rounded">
+                                        <option value="">Select Department</option>
+                                        <option :value="department.id" v-for="(department, d) in departments" :key="d">
+                                            {{ department.name }}
+                                        </option>
+                                    </select>
+                                    <small v-if="errors && errors.errors.department_id" class="text-red-700">{{
+                                        errors.errors.department_id }}</small>
+                                </div>
+                            </form>
+                        </template>
+                        <template #footer>
+                            <div class="flex gap-2">
+                                <button @click="UpdateEmployee"
+                                    class="flex items-center px-4 py-2 text-white bg-green-500 hover:bg-green-600 rounded gap-2">
+                                    Update
+                                </button>
+                                <button @click="cancelUpdateEmployee"
                                     class="flex items-center px-4 py-2 text-white bg-red-500 hover:bg-red-600 rounded gap-2">
                                     Cancel
                                 </button>

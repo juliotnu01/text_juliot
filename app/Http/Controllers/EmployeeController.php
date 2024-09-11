@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\EmployeeRequest;
+use App\Http\Requests\{EmployeeRequest, EmployeeUpdateRequest};
 use App\Http\Resources\EmployeeResource;
 use App\Models\Employee;
-use Illuminate\Http\Request;
 
 
 
@@ -66,9 +65,14 @@ class EmployeeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Employee $employee)
+    public function update(EmployeeUpdateRequest $request, Employee $employee)
     {
-        //
+        try {
+            $validatedData = $request->validated();
+            $employee->update($validatedData);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 
     /**

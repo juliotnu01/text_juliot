@@ -4,7 +4,7 @@ import { useEmployeeStore } from '@/stores/employee';
 import { storeToRefs } from "pinia";
 
 const employeeStore = useEmployeeStore();
-const { fetchEmployees } = employeeStore
+const { fetchEmployees, openModalAndSetDataForUpdateEmployee } = employeeStore
 const { employeesData } = storeToRefs(employeeStore)
 
 onMounted(async () => {
@@ -33,7 +33,7 @@ onMounted(async () => {
                 <td class="py-4 px-6 text-center ">{{ employee.department.name ?? '' }}</td>
                 <td class="py-4 px-6 text-center ">{{ employee.department.access ?? '' }}</td>
                 <td class="py-4 px-6 flex justify-center gap-2">
-                    <button class="flex items-center px-4 py-2 text-white bg-gray-500 hover:bg-gray-600 rounded gap-2">
+                    <button @click="openModalAndSetDataForUpdateEmployee({ id:employee.id, employee_id:employee.employee_id, first_name: employee.first_name, last_name:employee.last_name, department_id: employee.department.id })"  class="flex items-center px-4 py-2 text-white bg-gray-500 hover:bg-gray-600 rounded gap-2">
                         <svg fill="currentColor" width="20px" height="20px" viewBox="0 0 24 24" id="update-alt"
                             data-name="Flat Line" xmlns="http://www.w3.org/2000/svg" class="icon flat-line">
                             <path id="primary" d="M5.07,8A8,8,0,0,1,20,12"
