@@ -11,7 +11,7 @@ class EmployeeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,10 +22,10 @@ class EmployeeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'employee_id' => 'nullable|string|max:255',
-            'first_name' => 'nullable|string|max:255',
-            'last_name' => 'nullable|string|max:255',
-            'department_id' => 'nullable|exists:departments,id',
+            'employee_id' => 'required|nullable|string|max:255|unique:employees,employee_id',
+            'first_name' => 'required|nullable|string|max:255',
+            'last_name' => 'required|nullable|string|max:255',
+            'department_id' => 'required|nullable|exists:departments,id',
         ];
     }
 }

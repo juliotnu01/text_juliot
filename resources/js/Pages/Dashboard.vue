@@ -1,24 +1,41 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
-import Welcome from '@/Components/Welcome.vue';
 import TableDashboardVue from '@/Components/TableDashboard.vue';
-import { ref, onMounted, onUnmounted } from 'vue';
+import DialogModal from '@/Components/DialogModal.vue';
+
+import { useEmployeeStore } from '@/stores/employee';
+import { useDepartmentStore } from '@/stores/department';
+
+import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { storeToRefs } from "pinia";
 
 const currentDate = ref(new Date().toLocaleString());
 const updateDateTime = () => {
     currentDate.value = new Date().toLocaleString();
 };
+
+const employeeStore = useEmployeeStore();
+const departmentStore = useDepartmentStore();
+
+const { StoreEmployee, clearFilter } = employeeStore;
+const { fetchDepartments } = departmentStore;
+
+const { filters, openModalAddEmployee, employee, errors } = storeToRefs(employeeStore)
+const { departments } = storeToRefs(departmentStore)
+
+
 onMounted(() => {
     const interval = setInterval(updateDateTime, 1000);
     onUnmounted(() => {
         clearInterval(interval);
     });
+    fetchDepartments()
 });
 
 </script>
 
 <template>
-    <AppLayout title="Dashboard">
+    <AppLayout title="Room 911">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Dashboard
@@ -41,13 +58,16 @@ onMounted(() => {
         <div class="flex mt-10 gap-4 px-6 justify-center">
             <div class="flex flex-col w-2/12">
                 <label for="input_search_employee" class="mb-1 invisible">Placeholder</label>
-                <input type="text" class="h-10 px-2 border rounded" placeholder="Search by employee ID"
-                    id="input_search_employee">
+                <input v-model="filters.employee_id" type="text" class="h-10 px-2 border rounded"
+                    placeholder="Search by employee ID" id="input_search_employee">
             </div>
             <div class="flex flex-col w-2/12">
                 <label for="input_search_name" class="mb-1 invisible">Placeholder</label>
-                <input type="text" class="h-10 px-2 border rounded" placeholder="Search by Department"
-                    id="input_search_name">
+                <select v-model="filters.department" class="h-10 px-2 border rounded">
+                    <option value="">Select Department</option>
+                    <option :value="department.name" v-for="(department, d) in departments" :key="d">{{ department.name }}
+                    </option>
+                </select>
             </div>
             <div class="flex flex-col w-2/12">
                 <label for="initial_access_date" class="mb-2 text-sm text-gray-700">Initial access date:</label>
@@ -58,18 +78,8 @@ onMounted(() => {
                 <input type="date" class="h-10 px-2 border rounded" placeholder="End date" id="final_access_date">
             </div>
             <div class="flex items-end gap-2">
-                <button class="px-4 py-[5px] text-white bg-gray-500 rounded hover:bg-gray-600 flex gap-2 ">
-                    <svg width="30px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                        class=" self-center ">
-                        <path
-                            d="M14 20.5H10C9.80189 20.4974 9.61263 20.4176 9.47253 20.2775C9.33244 20.1374 9.25259 19.9481 9.25 19.75V12L3.9 4.69C3.81544 4.58007 3.76395 4.44832 3.75155 4.31018C3.73915 4.17204 3.76636 4.03323 3.83 3.91C3.89375 3.78712 3.98984 3.68399 4.10792 3.61173C4.226 3.53947 4.36157 3.50084 4.5 3.5H19.5C19.6384 3.50084 19.774 3.53947 19.8921 3.61173C20.0101 3.68399 20.1062 3.78712 20.17 3.91C20.2336 4.03323 20.2608 4.17204 20.2484 4.31018C20.236 4.44832 20.1846 4.58007 20.1 4.69L14.75 12V19.75C14.7474 19.9481 14.6676 20.1374 14.5275 20.2775C14.3874 20.4176 14.1981 20.4974 14 20.5ZM10.75 19H13.25V11.75C13.2492 11.5907 13.302 11.4357 13.4 11.31L18 5H6L10.62 11.31C10.718 11.4357 10.7708 11.5907 10.77 11.75L10.75 19Z"
-                            fill="currentColor" />
-                    </svg>
-                    <p class=" self-center ">
-                        Filter
-                    </p>
-                </button>
-                <button class="px-4 py-[5px] text-white bg-gray-500 rounded hover:bg-gray-600 flex gap-2 ">
+                <button @click="clearFilter"
+                    class="px-4 py-[5px] text-white bg-gray-500 rounded hover:bg-gray-600 flex gap-2 ">
                     <svg width="30px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
                         class=" self-center ">
                         <path
@@ -85,21 +95,69 @@ onMounted(() => {
                 </button>
             </div>
         </div>
-
         <div class="border-solid border-[1px] border-black w-11/12 mx-auto my-10" />
-
         <div class="w-full  px-6 flex justify-end ">
-            <button class="px-4 py-[10px] text-white bg-blue-500 rounded hover:bg-blue-600 flex gap-2 ">
+            <button @click="openModalAddEmployee = !openModalAddEmployee"
+                class="px-4 py-[10px] text-white bg-blue-500 rounded hover:bg-blue-600 flex gap-2 ">
                 <p class=" self-center ">
                     New employee
                 </p>
             </button>
         </div>
-
         <div class="py-4">
             <div class=" mx-auto px-6 ">
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                     <TableDashboardVue />
+                    <DialogModal :show="openModalAddEmployee" closeable>
+
+                        <template #content>
+                            <form>
+                                <div class="flex flex-col w-full my-4 ">
+                                    <label for="employee_id" class="mb-1 ">Employee ID </label>
+                                    <input v-model="employee.employee_id" type="text" class="h-10 px-2 border rounded"
+                                        placeholder="Enter employee ID" id="employee_id">
+                                    <small v-if="errors && errors.errors.employee_id" class="text-red-700">{{
+                                        errors.errors.employee_id }}</small>
+                                </div>
+                                <div class="flex flex-col w-full my-4 ">
+                                    <label for="firtname" class="mb-1 ">Firstname</label>
+                                    <input v-model="employee.first_name" type="text" class="h-10 px-2 border rounded"
+                                        placeholder="Enter firstname" id="firtname">
+                                    <small v-if="errors && errors.errors.first_name" class="text-red-700">{{
+                                        errors.errors.first_name }}</small>
+                                </div>
+                                <div class="flex flex-col w-full my-4 ">
+                                    <label for="lastname" class="mb-1 ">LastName</label>
+                                    <input v-model="employee.last_name" type="text" class="h-10 px-2 border rounded"
+                                        placeholder="Enter lastname" id="lastname">
+                                    <small v-if="errors && errors.errors.last_name" class="text-red-700">{{
+                                        errors.errors.last_name }}</small>
+                                </div>
+                                <div class="flex flex-col w-full my-4 ">
+                                    <label for="lastname" class="mb-1 ">LastName</label>
+                                    <select v-model="employee.department_id" class="h-10 px-2 border rounded">
+                                        <option value="">Select Department</option>
+                                        <option :value="department.id" v-for="(department, d) in departments" :key="d">
+                                            {{ department.name }}
+                                        </option>
+                                    </select>
+                                    <small v-if="errors && errors.errors.department_id" class="text-red-700">{{ errors.errors.department_id }}</small>
+                                </div>
+                            </form>
+                        </template>
+                        <template #footer>
+                            <div class="flex gap-2">
+                                <button @click="StoreEmployee"
+                                    class="flex items-center px-4 py-2 text-white bg-green-500 hover:bg-green-600 rounded gap-2">
+                                    Save
+                                </button>
+                                <button @click="openModalAddEmployee = !openModalAddEmployee"
+                                    class="flex items-center px-4 py-2 text-white bg-red-500 hover:bg-red-600 rounded gap-2">
+                                    Cancel
+                                </button>
+                            </div>
+                        </template>
+                    </DialogModal>
                 </div>
             </div>
         </div>

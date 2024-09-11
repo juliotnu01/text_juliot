@@ -1,4 +1,15 @@
 <script setup>
+import { onMounted } from 'vue';
+import { useEmployeeStore } from '@/stores/employee';
+import { storeToRefs } from "pinia";
+
+const employeeStore = useEmployeeStore();
+const { fetchEmployees } = employeeStore
+const { employeesData } = storeToRefs(employeeStore)
+
+onMounted(async () => {
+    await fetchEmployees()
+})
 
 </script>
 
@@ -15,12 +26,12 @@
             </tr>
         </thead>
         <tbody>
-            <tr class="border-b">
-                <td class="py-4 px-6 text-center ">1000000</td>
-                <td class="py-4 px-6 text-center ">John</td>
-                <td class="py-4 px-6 text-center ">Doe</td>
-                <td class="py-4 px-6 text-center ">Department 1</td>
-                <td class="py-4 px-6 text-center ">99</td>
+            <tr class="border-b" v-for="(employee, e) in employeesData" :key="e">
+                <td class="py-4 px-6 text-center ">{{ employee.employee_id }}</td>
+                <td class="py-4 px-6 text-center ">{{ employee.first_name }}</td>
+                <td class="py-4 px-6 text-center ">{{ employee.last_name }}</td>
+                <td class="py-4 px-6 text-center ">{{ employee.department.name ?? '' }}</td>
+                <td class="py-4 px-6 text-center ">{{ employee.department.access ?? '' }}</td>
                 <td class="py-4 px-6 flex justify-center gap-2">
                     <button class="flex items-center px-4 py-2 text-white bg-gray-500 hover:bg-gray-600 rounded gap-2">
                         <svg fill="currentColor" width="20px" height="20px" viewBox="0 0 24 24" id="update-alt"

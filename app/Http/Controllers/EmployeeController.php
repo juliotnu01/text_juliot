@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EmployeeRequest;
 use App\Http\Resources\EmployeeResource;
 use App\Models\Employee;
 use Illuminate\Http\Request;
+
 
 
 class EmployeeController extends Controller
@@ -33,13 +35,13 @@ class EmployeeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(EmployeeRequest $request)
     {
         try {
             $validatedData = $request->validated();
             $employee = Employee::create($validatedData);
             $employee->load('department');
-            return EmployeeResource::collection($employee);
+            return new EmployeeResource($employee);
         } catch (\Throwable $th) {
             throw $th;
         }
