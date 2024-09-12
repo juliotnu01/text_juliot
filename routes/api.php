@@ -17,3 +17,4 @@ Route::put('/update-employee/{employee}', [EmployeeController::class, 'update'])
 Route::put('/update-active-employee/{employee}', [EmployeeController::class, 'updateActiveEmployee'])->name('update.active.employee');
 Route::post('/access-room-911', [RecordController::class, 'store'])->name('access.room.911');
 Route::delete('/delete-employee/{employee}', [EmployeeController::class, 'destroy'])->name('delete.employee.room');
+Route::post('/import-csv-employee', [EmployeeController::class, 'importCsvEmployee'])->name('import.employee.room');

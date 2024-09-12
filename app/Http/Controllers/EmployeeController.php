@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\{EmployeeRequest, EmployeeUpdateRequest, EmployeeUpdateActiveEmployeeRequest};
+use App\Http\Requests\{EmployeeRequest, EmployeeUpdateRequest, EmployeeUpdateActiveEmployeeRequest, EmployeeImportCsvRequest};
 use App\Http\Resources\EmployeeResource;
+use App\Imports\EmployeeImport;
 use App\Models\Employee;
-
+use Illuminate\Support\Facades\Request;
+use Excel;
 
 
 class EmployeeController extends Controller
@@ -76,7 +78,7 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update active the specified resource in storage.
      */
     public function updateActiveEmployee(EmployeeUpdateActiveEmployeeRequest $request, Employee $employee)
     {
@@ -97,6 +99,20 @@ class EmployeeController extends Controller
     {
         try {
             $employee->forceDelete();
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    /**
+     * import csv   
+     */
+
+    public function importCsvEmployee(EmployeeImportCsvRequest $request)
+    {
+        try {
+            Excel::import(new EmployeeImport, $request->file('file'), \Maatwebsite\Excel\Excel::CSV);
+            return response()->json(['message' => 'CSV importado con exito'], 200);
         } catch (\Throwable $th) {
             throw $th;
         }

@@ -7,6 +7,7 @@ export const useEmployeeStore = defineStore('employee', {
             openModalAddEmployee: false,
             openModalUpdateEmployee: false,
             openModalHistoryEmployee: false,
+            openModalImportEmployee: false,
             filters: {
                 employee_id: '',
                 department: '',
@@ -29,7 +30,8 @@ export const useEmployeeStore = defineStore('employee', {
                 totalPages: 1,
                 perPage: 10,
                 total: 0
-            }
+            },
+            file: null
         };
     },
     getters: {
@@ -188,6 +190,21 @@ export const useEmployeeStore = defineStore('employee', {
             alert('do you want to delete this record?');
             await axios.delete(route('delete.employee.room', { employee: employee.id }));
             this.fetchEmployees(this.pagination.currentPage)
+        },
+        handleFile(e) {
+            this.file = e.target.files[0]
+        },
+        async importEmployee() {
+            const formData = new FormData();
+            formData.append('file', this.file);
+
+            await axios.post(route('import.employee.room'), formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            this.fetchEmployees(this.pagination.currentPage)
+            this.openModalImportEmployee = false
+
         }
     }
 })

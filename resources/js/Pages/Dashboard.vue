@@ -17,10 +17,10 @@ const updateDateTime = () => {
 const employeeStore = useEmployeeStore();
 const departmentStore = useDepartmentStore();
 
-const { StoreEmployee, clearFilter, cancelUpdateEmployee, UpdateEmployee } = employeeStore;
+const { StoreEmployee, clearFilter, cancelUpdateEmployee, UpdateEmployee, importEmployee, handleFile } = employeeStore;
 const { fetchDepartments } = departmentStore;
 
-const { filters, openModalAddEmployee, employee, errors, openModalUpdateEmployee, openModalHistoryEmployee } = storeToRefs(employeeStore)
+const { filters, openModalAddEmployee, employee, errors, openModalUpdateEmployee, openModalHistoryEmployee, openModalImportEmployee, file } = storeToRefs(employeeStore)
 const { departments } = storeToRefs(departmentStore)
 
 
@@ -82,11 +82,13 @@ onMounted(() => {
             </div>
             <div class="flex flex-col w-1/12">
                 <label for="initial_access_date" class="mb-2 text-sm text-gray-700">Initial access date:</label>
-                <input v-model="filters.init_date" type="date" class="h-10 px-2 border rounded" placeholder="Start date" id="initial_access_date">
+                <input v-model="filters.init_date" type="date" class="h-10 px-2 border rounded" placeholder="Start date"
+                    id="initial_access_date">
             </div>
             <div class="flex flex-col w-1/12">
                 <label for="final_access_date" class="mb-2 text-sm text-gray-700">Final access date:</label>
-                <input v-model="filters.end_date" type="date" class="h-10 px-2 border rounded" placeholder="End date" id="final_access_date">
+                <input v-model="filters.end_date" type="date" class="h-10 px-2 border rounded" placeholder="End date"
+                    id="final_access_date">
             </div>
             <div class="flex items-end gap-2">
                 <button @click="clearFilter"
@@ -107,7 +109,18 @@ onMounted(() => {
             </div>
         </div>
         <div class="border-solid border-[1px] border-black w-11/12 mx-auto my-10" />
-        <div class="w-full  px-6 flex justify-end ">
+        <div class="w-full  px-6 flex justify-end gap-4">
+            <button @click="openModalImportEmployee = !openModalImportEmployee"
+                class="px-4 py-[10px] text-white bg-orange-500 rounded hover:bg-orange-600 flex gap-2 ">
+                <svg width="20px" height="20px" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M13.5 3.5H14V3.29289L13.8536 3.14645L13.5 3.5ZM10.5 0.5L10.8536 0.146447L10.7071 0H10.5V0.5ZM6.5 6.5V6H6V6.5H6.5ZM6.5 8.5H6V9H6.5V8.5ZM8.5 8.5H9V8H8.5V8.5ZM8.5 10.5V11H9V10.5H8.5ZM10.5 9.5H10V9.70711L10.1464 9.85355L10.5 9.5ZM11.5 10.5L11.1464 10.8536L11.5 11.2071L11.8536 10.8536L11.5 10.5ZM12.5 9.5L12.8536 9.85355L13 9.70711V9.5H12.5ZM2.5 6.5V6H2V6.5H2.5ZM2.5 10.5H2V11H2.5V10.5ZM2 5V1.5H1V5H2ZM13 3.5V5H14V3.5H13ZM2.5 1H10.5V0H2.5V1ZM10.1464 0.853553L13.1464 3.85355L13.8536 3.14645L10.8536 0.146447L10.1464 0.853553ZM2 1.5C2 1.22386 2.22386 1 2.5 1V0C1.67157 0 1 0.671573 1 1.5H2ZM1 12V13.5H2V12H1ZM2.5 15H12.5V14H2.5V15ZM14 13.5V12H13V13.5H14ZM12.5 15C13.3284 15 14 14.3284 14 13.5H13C13 13.7761 12.7761 14 12.5 14V15ZM1 13.5C1 14.3284 1.67157 15 2.5 15V14C2.22386 14 2 13.7761 2 13.5H1ZM9 6H6.5V7H9V6ZM6 6.5V8.5H7V6.5H6ZM6.5 9H8.5V8H6.5V9ZM8 8.5V10.5H9V8.5H8ZM8.5 10H6V11H8.5V10ZM10 6V9.5H11V6H10ZM10.1464 9.85355L11.1464 10.8536L11.8536 10.1464L10.8536 9.14645L10.1464 9.85355ZM11.8536 10.8536L12.8536 9.85355L12.1464 9.14645L11.1464 10.1464L11.8536 10.8536ZM13 9.5V6H12V9.5H13ZM5 6H2.5V7H5V6ZM2 6.5V10.5H3V6.5H2ZM2.5 11H5V10H2.5V11Z"
+                        fill="currentColor" />
+                </svg>
+                <p class=" self-center ">
+                    Import employee
+                </p>
+            </button>
             <button @click="openModalAddEmployee = !openModalAddEmployee"
                 class="px-4 py-[10px] text-white bg-blue-500 rounded hover:bg-blue-600 flex gap-2 ">
                 <p class=" self-center ">
@@ -224,7 +237,7 @@ onMounted(() => {
                     </DialogModal>
                     <DialogModal :show="openModalHistoryEmployee" closeable>
                         <template #title>
-                            <div class="text-[16px]"> Hitory access of employee:  {{employee.first_name}}  </div>
+                            <div class="text-[16px]"> Hitory access of employee: {{ employee.first_name }} </div>
                         </template>
                         <template #content>
                             <table class="min-w-full table-auto bg-white shadow-md rounded-lg overflow-hidden">
@@ -234,17 +247,17 @@ onMounted(() => {
                                         <th class="py-3 px-6 text-center">Exit</th>
                                         <th class="py-3 px-6 text-center">Diff. Hours</th>
                                         <th class="py-3 px-6 text-center">Department</th>
-                                        
-                                        
+
+
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(record, r) in employee.history" :key="r" >
+                                    <tr v-for="(record, r) in employee.history" :key="r">
                                         <td class="py-4 px-6 text-center ">{{ record.income }}</td>
                                         <td class="py-4 px-6 text-center ">{{ record.exit }}</td>
                                         <td class="py-4 px-6 text-center ">{{ record.diff_income_exit_hours }}</td>
                                         <td class="py-4 px-6 text-center ">{{ employee.department.name }}</td>
-                                        
+
                                     </tr>
                                 </tbody>
                             </table>
@@ -253,6 +266,30 @@ onMounted(() => {
                             <div class="flex gap-2">
 
                                 <button @click="openModalHistoryEmployee = !openModalHistoryEmployee"
+                                    class="flex items-center px-4 py-2 text-white bg-red-500 hover:bg-red-600 rounded gap-2">
+                                    Cancel
+                                </button>
+                            </div>
+                        </template>
+                    </DialogModal>
+                    <DialogModal :show="openModalImportEmployee" closeable>
+                        <template #title>
+                            <div class="text-[16px]"> Import csv file</div>
+                        </template>
+                        <template #content>
+                            <div class="flex flex-col w-full">
+                                <label for="input_search_employee" class="mb-1 invisible">File import</label>
+                                <input @change="handleFile" ref="file" type="file" class="h-10 px-2 border rounded"
+                                    placeholder="Search by employee ID" id="input_search_employee">
+                            </div>
+                        </template>
+                        <template #footer>
+                            <div class="flex gap-2">
+                                <button @click="importEmployee"
+                                    class="flex items-center px-4 py-2 text-white bg-green-500 hover:bg-green-600 rounded gap-2">
+                                    Import
+                                </button>
+                                <button @click="openModalImportEmployee = !openModalImportEmployee"
                                     class="flex items-center px-4 py-2 text-white bg-red-500 hover:bg-red-600 rounded gap-2">
                                     Cancel
                                 </button>
