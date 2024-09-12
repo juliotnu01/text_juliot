@@ -20,17 +20,17 @@ const departmentStore = useDepartmentStore();
 const { StoreEmployee, clearFilter, cancelUpdateEmployee, UpdateEmployee } = employeeStore;
 const { fetchDepartments } = departmentStore;
 
-const { filters, openModalAddEmployee, employee, errors, openModalUpdateEmployee } = storeToRefs(employeeStore)
+const { filters, openModalAddEmployee, employee, errors, openModalUpdateEmployee, openModalHistoryEmployee } = storeToRefs(employeeStore)
 const { departments } = storeToRefs(departmentStore)
 
 
-    onMounted(() => {
-        const interval = setInterval(updateDateTime, 1000);
-        onUnmounted(() => {
-            clearInterval(interval);
-        });
-        fetchDepartments()
+onMounted(() => {
+    const interval = setInterval(updateDateTime, 1000);
+    onUnmounted(() => {
+        clearInterval(interval);
     });
+    fetchDepartments()
+});
 
 </script>
 
@@ -62,6 +62,16 @@ const { departments } = storeToRefs(departmentStore)
                     placeholder="Search by employee ID" id="input_search_employee">
             </div>
             <div class="flex flex-col w-2/12">
+                <label for="input_search_employee" class="mb-1 invisible">Placeholder</label>
+                <input v-model="filters.first_name" type="text" class="h-10 px-2 border rounded"
+                    placeholder="Search by firstname" id="input_search_employee">
+            </div>
+            <div class="flex flex-col w-2/12">
+                <label for="input_search_employee" class="mb-1 invisible">Placeholder</label>
+                <input v-model="filters.last_name" type="text" class="h-10 px-2 border rounded"
+                    placeholder="Search by lastname" id="input_search_employee">
+            </div>
+            <div class="flex flex-col w-2/12">
                 <label for="input_search_name" class="mb-1 invisible">Placeholder</label>
                 <select v-model="filters.department" class="h-10 px-2 border rounded">
                     <option value="">Select Department</option>
@@ -70,13 +80,13 @@ const { departments } = storeToRefs(departmentStore)
                     </option>
                 </select>
             </div>
-            <div class="flex flex-col w-2/12">
+            <div class="flex flex-col w-1/12">
                 <label for="initial_access_date" class="mb-2 text-sm text-gray-700">Initial access date:</label>
-                <input type="date" class="h-10 px-2 border rounded" placeholder="Start date" id="initial_access_date">
+                <input v-model="filters.init_date" type="date" class="h-10 px-2 border rounded" placeholder="Start date" id="initial_access_date">
             </div>
-            <div class="flex flex-col w-2/12">
+            <div class="flex flex-col w-1/12">
                 <label for="final_access_date" class="mb-2 text-sm text-gray-700">Final access date:</label>
-                <input type="date" class="h-10 px-2 border rounded" placeholder="End date" id="final_access_date">
+                <input v-model="filters.end_date" type="date" class="h-10 px-2 border rounded" placeholder="End date" id="final_access_date">
             </div>
             <div class="flex items-end gap-2">
                 <button @click="clearFilter"
@@ -206,6 +216,43 @@ const { departments } = storeToRefs(departmentStore)
                                     Update
                                 </button>
                                 <button @click="cancelUpdateEmployee"
+                                    class="flex items-center px-4 py-2 text-white bg-red-500 hover:bg-red-600 rounded gap-2">
+                                    Cancel
+                                </button>
+                            </div>
+                        </template>
+                    </DialogModal>
+                    <DialogModal :show="openModalHistoryEmployee" closeable>
+                        <template #title>
+                            <div class="text-[16px]"> Hitory access of employee:  {{employee.first_name}}  </div>
+                        </template>
+                        <template #content>
+                            <table class="min-w-full table-auto bg-white shadow-md rounded-lg overflow-hidden">
+                                <thead class="bg-gray-200">
+                                    <tr>
+                                        <th class="py-3 px-6 text-center">Income</th>
+                                        <th class="py-3 px-6 text-center">Exit</th>
+                                        <th class="py-3 px-6 text-center">Diff. Hours</th>
+                                        <th class="py-3 px-6 text-center">Department</th>
+                                        
+                                        
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(record, r) in employee.history" :key="r" >
+                                        <td class="py-4 px-6 text-center ">{{ record.income }}</td>
+                                        <td class="py-4 px-6 text-center ">{{ record.exit }}</td>
+                                        <td class="py-4 px-6 text-center ">{{ record.diff_income_exit_hours }}</td>
+                                        <td class="py-4 px-6 text-center ">{{ employee.department.name }}</td>
+                                        
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </template>
+                        <template #footer>
+                            <div class="flex gap-2">
+
+                                <button @click="openModalHistoryEmployee = !openModalHistoryEmployee"
                                     class="flex items-center px-4 py-2 text-white bg-red-500 hover:bg-red-600 rounded gap-2">
                                     Cancel
                                 </button>

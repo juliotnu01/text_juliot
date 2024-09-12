@@ -20,6 +20,7 @@ class EmployeeResource extends JsonResource
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'active' => $this->active,
+            'history' => RecordResource::collection($this->whenLoaded('history')),
             'department' => new DepartmentResource($this->whenLoaded('department')),
         ];
     }

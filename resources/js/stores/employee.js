@@ -6,9 +6,12 @@ export const useEmployeeStore = defineStore('employee', {
             employees: [],
             openModalAddEmployee: false,
             openModalUpdateEmployee: false,
+            openModalHistoryEmployee: false,
             filters: {
                 employee_id: '',
                 department: '',
+                first_name: '',
+                last_name: '',
                 init_date: '',
                 end_date: ''
             },
@@ -30,8 +33,44 @@ export const useEmployeeStore = defineStore('employee', {
                 if (state.filters.employee_id && !employee.employee_id.toLowerCase().includes(state.filters.employee_id.toLowerCase())) {
                     matchesFilter = false;
                 }
+                if (state.filters.first_name && !employee.first_name.toLowerCase().includes(state.filters.first_name.toLowerCase())) {
+                    matchesFilter = false;
+                }
+                if (state.filters.last_name && !employee.last_name.toLowerCase().includes(state.filters.last_name.toLowerCase())) {
+                    matchesFilter = false;
+                }
                 if (state.filters.department && !employee.department.name.toLowerCase().includes(state.filters.department.toLowerCase())) {
                     matchesFilter = false;
+                }
+                if (state.filters.init_date || state.filters.end_date) {
+                    const employeeHistory = employee.history;
+
+                    const filteredByDate = employeeHistory.some(entry => {
+                        const incomeDate = entry.income.substring(0, 10); 
+                        const exitDate = entry.exit.substring(0, 10);     
+
+                        const initDate = state.filters.init_date ? new Date(state.filters.init_date) : null;
+                        const endDate = state.filters.end_date ? new Date(state.filters.end_date) : null;
+
+                        const income = new Date(incomeDate);
+                        const exit = new Date(exitDate);
+
+                        let isInRange = true;
+
+                        if (initDate && income < initDate) {
+                            isInRange = false;
+                        }
+
+                        if (endDate && exit > endDate) {
+                            isInRange = false;
+                        }
+
+                        return isInRange;
+                    });
+
+                    if (!filteredByDate) {
+                        matchesFilter = false;
+                    }
                 }
                 return matchesFilter;
             });
@@ -96,7 +135,7 @@ export const useEmployeeStore = defineStore('employee', {
         },
         async UpdateActiveEmployee(employee) {
             try {
-                await axios.put(route('update.active.employee', { employee: employee.id }), {active: employee.active =  !employee.active  });
+                await axios.put(route('update.active.employee', { employee: employee.id }), { active: employee.active = !employee.active });
                 this.errors = null;
                 this.fetchEmployees()
 
@@ -109,6 +148,8 @@ export const useEmployeeStore = defineStore('employee', {
             this.filters = {
                 employee_id: '',
                 department: '',
+                first_name: '',
+                last_name: '',
                 init_date: '',
                 end_date: ''
             }
@@ -125,6 +166,10 @@ export const useEmployeeStore = defineStore('employee', {
                 department_id: '',
             }
             this.openModalUpdateEmployee = false;
+        },
+        openModalAndSetHistoryEmployee(data) {
+            this.openModalHistoryEmployee = true
+            this.employee = data
         }
     }
 })

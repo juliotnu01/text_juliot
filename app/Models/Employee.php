@@ -14,4 +14,9 @@ class Employee extends Model
     {
         return $this->belongsTo(Department::class, 'department_id');
     }
+
+    public function history()
+    {
+        return $this->hasMany(Record::class, 'employee_id');
+    }
 }

@@ -4,7 +4,7 @@ import { useEmployeeStore } from '@/stores/employee';
 import { storeToRefs } from "pinia";
 
 const employeeStore = useEmployeeStore();
-const { fetchEmployees, openModalAndSetDataForUpdateEmployee, UpdateActiveEmployee } = employeeStore
+const { fetchEmployees, openModalAndSetDataForUpdateEmployee, UpdateActiveEmployee, openModalAndSetHistoryEmployee } = employeeStore
 const { employeesData } = storeToRefs(employeeStore)
 
 onMounted(async () => {
@@ -81,6 +81,7 @@ onMounted(async () => {
                         {{ employee.active ?  'Disable' : 'Enable'}}
                     </button>
                     <button
+                    @click="openModalAndSetHistoryEmployee(employee)"
                         class="flex items-center px-4 py-2 text-white bg-yellow-500 hover:bg-yellow-600 rounded gap-2">
                         <svg fill="currentColor" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
                             xmlns:xlink="http://www.w3.org/1999/xlink" width="20px" height="20px"

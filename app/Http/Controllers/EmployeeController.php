@@ -16,7 +16,7 @@ class EmployeeController extends Controller
     public function index()
     {
         try {
-            $employees = Employee::with('department')->paginate(10);
+            $employees = Employee::with(['department', 'history'])->paginate(10);
             return EmployeeResource::collection($employees);
         } catch (\Throwable $th) {
             throw $th;
