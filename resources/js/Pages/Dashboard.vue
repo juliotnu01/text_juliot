@@ -24,13 +24,13 @@ const { filters, openModalAddEmployee, employee, errors, openModalUpdateEmployee
 const { departments } = storeToRefs(departmentStore)
 
 
-onMounted(() => {
-    const interval = setInterval(updateDateTime, 1000);
-    onUnmounted(() => {
-        clearInterval(interval);
+    onMounted(() => {
+        const interval = setInterval(updateDateTime, 1000);
+        onUnmounted(() => {
+            clearInterval(interval);
+        });
+        fetchDepartments()
     });
-    fetchDepartments()
-});
 
 </script>
 
