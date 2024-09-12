@@ -24,6 +24,12 @@ export const useEmployeeStore = defineStore('employee', {
                 active: '',
             },
             errors: null,
+            pagination: {
+                currentPage: 1,
+                totalPages: 1,
+                perPage: 10,
+                total: 0
+            }
         };
     },
     getters: {
@@ -46,8 +52,8 @@ export const useEmployeeStore = defineStore('employee', {
                     const employeeHistory = employee.history;
 
                     const filteredByDate = employeeHistory.some(entry => {
-                        const incomeDate = entry.income.substring(0, 10); 
-                        const exitDate = entry.exit.substring(0, 10);     
+                        const incomeDate = entry.income.substring(0, 10);
+                        const exitDate = entry.exit.substring(0, 10);
 
                         const initDate = state.filters.init_date ? new Date(state.filters.init_date) : null;
                         const endDate = state.filters.end_date ? new Date(state.filters.end_date) : null;
@@ -86,15 +92,22 @@ export const useEmployeeStore = defineStore('employee', {
         setFilters(filters) {
             this.filters = { ...this.filters, ...filters };
         },
-        async fetchEmployees() {
+        async fetchEmployees(page = 1) {
             try {
-                const response = await axios(route('get.room.employee'));
-                let { data } = response.data;
-                this.setEmployees(data)
-            } catch (error) {
-                console.log(error);
-            }
+                const response = await axios.get(route('get.room.employee', { page }));
+                const { data, meta } = response.data;
 
+                this.pagination = {
+                    currentPage: meta.current_page,
+                    totalPages: meta.last_page,
+                    perPage: meta.per_page,
+                    total: meta.total
+                };
+
+                this.setEmployees(data);
+            } catch (error) {
+                console.error('Error fetching employees:', error);
+            }
         },
         async StoreEmployee() {
             try {
@@ -126,7 +139,7 @@ export const useEmployeeStore = defineStore('employee', {
                 };
 
                 this.errors = null;
-                this.fetchEmployees()
+                this.fetchEmployees(this.pagination.currentPage)
 
             } catch (error) {
                 this.errors = error.response?.data ?? null;
@@ -137,7 +150,7 @@ export const useEmployeeStore = defineStore('employee', {
             try {
                 await axios.put(route('update.active.employee', { employee: employee.id }), { active: employee.active = !employee.active });
                 this.errors = null;
-                this.fetchEmployees()
+                this.fetchEmployees(this.pagination.currentPage)
 
             } catch (error) {
                 this.errors = error.response?.data ?? null;
@@ -170,6 +183,11 @@ export const useEmployeeStore = defineStore('employee', {
         openModalAndSetHistoryEmployee(data) {
             this.openModalHistoryEmployee = true
             this.employee = data
+        },
+        async deleteEmployee(employee) {
+            alert('do you want to delete this record?');
+            await axios.delete(route('delete.employee.room', { employee: employee.id }));
+            this.fetchEmployees(this.pagination.currentPage)
         }
     }
 })

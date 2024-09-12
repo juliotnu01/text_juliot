@@ -34,6 +34,18 @@ class RecordController extends Controller
             $employee = Employee::where('employee_id', $request['employee_id'])->first();
 
             if ($employee) {
+
+
+                if (!$employee->active) {
+                    Record::create([
+                        'employee_id' => $employee->id,
+                    ]);
+                    
+                    return response()->json(['message' => 'Restricted user'], 422);
+                }
+
+
+
                 $openRecord = Record::where('employee_id', $employee->id)
                     ->whereNotNull('income')
                     ->whereNull('exit')

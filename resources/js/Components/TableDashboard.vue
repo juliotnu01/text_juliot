@@ -4,8 +4,14 @@ import { useEmployeeStore } from '@/stores/employee';
 import { storeToRefs } from "pinia";
 
 const employeeStore = useEmployeeStore();
-const { fetchEmployees, openModalAndSetDataForUpdateEmployee, UpdateActiveEmployee, openModalAndSetHistoryEmployee } = employeeStore
-const { employeesData } = storeToRefs(employeeStore)
+const { fetchEmployees, openModalAndSetDataForUpdateEmployee, UpdateActiveEmployee, openModalAndSetHistoryEmployee, deleteEmployee } = employeeStore
+const { employeesData, pagination } = storeToRefs(employeeStore)
+
+const changePage = (page) => {
+    if (page >= 1 && page <= employeeStore.pagination.totalPages) {
+        fetchEmployees(page);
+    }
+};
 
 onMounted(async () => {
     await fetchEmployees()
@@ -30,10 +36,12 @@ onMounted(async () => {
                 <td class="py-4 px-6 text-center ">{{ employee.employee_id }}</td>
                 <td class="py-4 px-6 text-center ">{{ employee.first_name }}</td>
                 <td class="py-4 px-6 text-center ">{{ employee.last_name }}</td>
-                <td class="py-4 px-6 text-center ">{{ employee.department.name ?? '' }}</td>
-                <td class="py-4 px-6 text-center ">{{ employee.department.access ?? '' }}</td>
+                <td class="py-4 px-6 text-center ">{{ employee.department ? employee.department.name : '' }}</td>
+                <td class="py-4 px-6 text-center ">{{ employee.department ? employee.department.access : '' }}</td>
                 <td class="py-4 px-6 flex justify-center gap-2">
-                    <button @click="openModalAndSetDataForUpdateEmployee({ id:employee.id, employee_id:employee.employee_id, first_name: employee.first_name, last_name:employee.last_name, department_id: employee.department.id })"  class="flex items-center px-4 py-2 text-white bg-gray-500 hover:bg-gray-600 rounded gap-2">
+                    <button
+                        @click="openModalAndSetDataForUpdateEmployee({ id: employee.id, employee_id: employee.employee_id, first_name: employee.first_name, last_name: employee.last_name, department_id: employee.department.id })"
+                        class="flex items-center px-4 py-2 text-white bg-gray-500 hover:bg-gray-600 rounded gap-2">
                         <svg fill="currentColor" width="20px" height="20px" viewBox="0 0 24 24" id="update-alt"
                             data-name="Flat Line" xmlns="http://www.w3.org/2000/svg" class="icon flat-line">
                             <path id="primary" d="M5.07,8A8,8,0,0,1,20,12"
@@ -51,7 +59,8 @@ onMounted(async () => {
                         </svg>
                         Update
                     </button>
-                    <button @click="UpdateActiveEmployee(employee)" :class="{'flex items-center px-4 py-2 text-white bg-gray-500 hover:bg-gray-600 rounded gap-2': !employee.active, 'flex items-center px-4 py-2 text-white bg-green-500 hover:bg-green-600 rounded gap-2': employee.active  }">
+                    <button @click="UpdateActiveEmployee(employee)"
+                        :class="{ 'flex items-center px-4 py-2 text-white bg-gray-500 hover:bg-gray-600 rounded gap-2': !employee.active, 'flex items-center px-4 py-2 text-white bg-green-500 hover:bg-green-600 rounded gap-2': employee.active }">
                         <svg fill="currentColor" height="20px" width="20px" version="1.1" id="Layer_1"
                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                             viewBox="0 0 472.615 472.615" xml:space="preserve">
@@ -78,10 +87,9 @@ onMounted(async () => {
                                 </g>
                             </g>
                         </svg>
-                        {{ employee.active ?  'Disable' : 'Enable'}}
+                        {{ employee.active ? 'Disable' : 'Enable' }}
                     </button>
-                    <button
-                    @click="openModalAndSetHistoryEmployee(employee)"
+                    <button @click="openModalAndSetHistoryEmployee(employee)"
                         class="flex items-center px-4 py-2 text-white bg-yellow-500 hover:bg-yellow-600 rounded gap-2">
                         <svg fill="currentColor" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
                             xmlns:xlink="http://www.w3.org/1999/xlink" width="20px" height="20px"
@@ -105,7 +113,8 @@ onMounted(async () => {
                         </svg>
                         History
                     </button>
-                    <button class="flex items-center px-4 py-2 text-white bg-red-500 hover:bg-red-600 rounded gap-2">
+                    <button @click="deleteEmployee(employee)"
+                        class="flex items-center px-4 py-2 text-white bg-red-500 hover:bg-red-600 rounded gap-2">
                         <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
                             <path d="M9.1709 4C9.58273 2.83481 10.694 2 12.0002 2C13.3064 2 14.4177 2.83481 14.8295 4"
@@ -123,4 +132,18 @@ onMounted(async () => {
             </tr>
         </tbody>
     </table>
+    <div class="mt-4 flex justify-between items-center">
+        <button @click="changePage(pagination.currentPage - 1)" :disabled="pagination.currentPage === 1"
+            class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300">
+            Previous
+        </button>
+        <span>
+            Page {{ pagination.currentPage }} of {{ pagination.totalPages }}
+        </span>
+        <button @click="changePage(pagination.currentPage + 1)"
+            :disabled="pagination.currentPage === employeeStore.pagination.totalPages"
+            class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300">
+            Next
+        </button>
+    </div>
 </template>

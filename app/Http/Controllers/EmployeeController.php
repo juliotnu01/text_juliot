@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\{EmployeeRequest, EmployeeUpdateRequest, EmployeeUpdateActiveEmployeeRequest };
+use App\Http\Requests\{EmployeeRequest, EmployeeUpdateRequest, EmployeeUpdateActiveEmployeeRequest};
 use App\Http\Resources\EmployeeResource;
 use App\Models\Employee;
 
@@ -95,6 +95,10 @@ class EmployeeController extends Controller
      */
     public function destroy(Employee $employee)
     {
-        //
+        try {
+            $employee->forceDelete();
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 }

@@ -27,6 +27,7 @@ export const useRoom911tStore = defineStore('room911', {
                 }
                 this.errors = null
             } catch (error) {
+                this.message = null
                 this.errors = error.response.data;
             }
         }
