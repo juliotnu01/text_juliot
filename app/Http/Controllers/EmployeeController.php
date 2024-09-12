@@ -6,8 +6,9 @@ use App\Http\Requests\{EmployeeRequest, EmployeeUpdateRequest, EmployeeUpdateAct
 use App\Http\Resources\EmployeeResource;
 use App\Imports\EmployeeImport;
 use App\Models\Employee;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
 use Excel;
+use Mpdf\Mpdf;
 
 
 class EmployeeController extends Controller
@@ -116,5 +117,24 @@ class EmployeeController extends Controller
         } catch (\Throwable $th) {
             throw $th;
         }
+    }
+
+    /**
+     * generate pdf history of employee
+     */
+
+    public function generateEmployeePdf(Request $request)
+    {
+
+        $mpdf = new Mpdf();
+        $data = $request->all();
+
+        $html = view('pdf.historyAccessEmployee', compact('data'))->render();
+
+        $mpdf->WriteHTML($html);
+
+        $firstName = $data['first_name'];
+        
+        return $mpdf->Output("history-access-$firstName.pdf", 'D');
     }
 }

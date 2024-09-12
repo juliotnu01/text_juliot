@@ -187,7 +187,7 @@ export const useEmployeeStore = defineStore('employee', {
             this.employee = data
         },
         async deleteEmployee(employee) {
-            alert('do you want to delete this record?');
+            confirm('do you want to delete this record?');
             await axios.delete(route('delete.employee.room', { employee: employee.id }));
             this.fetchEmployees(this.pagination.currentPage)
         },
@@ -205,6 +205,22 @@ export const useEmployeeStore = defineStore('employee', {
             this.fetchEmployees(this.pagination.currentPage)
             this.openModalImportEmployee = false
 
+        },
+        async generatePdfHistoryEmployee(emp) {
+            try {
+                let { data } = await axios.post(route('generate.pdf.history.employee.room'), emp, {
+                    responseType: 'blob'
+                })
+                const url = window.URL.createObjectURL(new Blob([data]))
+                const link = document.createElement('a')
+                link.href = url
+                link.setAttribute('download', `history-access-${emp.first_name}.pdf`)
+                document.body.appendChild(link)
+                link.click()
+            } catch (error) {
+                console.log(error);
+
+            }
         }
     }
 })
