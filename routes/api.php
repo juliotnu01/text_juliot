@@ -18,3 +18,4 @@ Route::put('/update-active-employee/{employee}', [EmployeeController::class, 'up
 Route::post('/access-room-911', [RecordController::class, 'store'])->name('access.room.911');
 Route::delete('/delete-employee/{employee}', [EmployeeController::class, 'destroy'])->name('delete.employee.room');
 Route::post('/import-csv-employee', [EmployeeController::class, 'importCsvEmployee'])->name('import.employee.room');
+Route::post('/generate-pdf-history-employee', [EmployeeController::class, 'generateEmployeePdf'])->name('generate.pdf.history.employee.room');
